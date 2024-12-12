@@ -73,6 +73,21 @@ public:
         }
     }
 
+    
+    // 把data, data + len内存上的数据, 添加到writable缓冲区当中
+    void append(const char *data, size_t len)
+    {
+        ensureWriteableBytes(len);
+        std::copy(data, data + len, beginWrite());
+        writerIndex_ += len;
+    }
+
+    char *beginWrite() { return begin() + writerIndex_; }
+    const char *beginWrite() const { return begin() + writerIndex_; }
+
+    // 从fd上读取数据
+    ssize_t readFd(int fd, int *saveErrno);
+
 private:
     // it.operator*().operator&()
     char *begin() { return &*buffer_.begin(); } // vector底层数组首元素的地址，也就是数组的起始地址

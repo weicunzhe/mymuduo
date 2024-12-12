@@ -14,3 +14,4 @@ using WriteCompleteCallback = std::function<void(const TcpConnection &)>;
 using MessageCallback = std::function<void(const TcpConnection &,
                                            Buffer *,
                                            Timestamp)>;
+using HighWaterMarkCallback = std::function<void(const TcpConnection &, size_t)>;
