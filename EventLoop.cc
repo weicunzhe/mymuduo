@@ -109,7 +109,7 @@ void EventLoop::runInLoop(Functor cb)
     }
     else        //在非当前线程中执行cb，需要唤醒loop所在线程, 执行cb
     {
-        queueInLoop(cb);
+        queueInLoop(std::move(cb));
     }
 };
 // 把cb放入队列中, 唤醒loop所在的线程, 执行cb
