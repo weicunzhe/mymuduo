@@ -19,11 +19,12 @@ class Socket;
  *
  * => TcpConnecton 设置回调 => channel => poller => Channel的回调操作
  */
-class TcpConnection : noncopyalbe, std::enable_shared_from_this(TcpConnection)
+class TcpConnection : noncopyalbe, std::enable_shared_from_this<TcpConnection>
 {
 public:
     TcpConnection(EventLoop * loop,
                   const std::string &name,
+                  int sockfd,
                   const InetAddress &localAddr,
                   const InetAddress &peerAddr);
     ~TcpConnection();
@@ -34,7 +35,7 @@ public:
     const InetAddress &peerAddress() const { return peerAddr_; }
 
     bool connected() const { return state_ == kConnected; }
-    bool disconnected() const { return state_ == kDisConnected; }
+    bool disconnected() const { return state_ == kDisconnected; }
 
     // 发送数据
     void send(const void *message, int len);
@@ -43,11 +44,11 @@ public:
 
     void setConnectionCallback(const ConnectionCallback &cb) { connectionCallback_ = cb; }
     void setMessageCallback(const MessageCallback &cb) { messageCallback_ = cb; }
-    void setWriteCompleteCakkback(const WriteCompleteCallback &cb) { const writeCompleteCallback_ = cb; }
+    void setWriteCompleteCakkback(const WriteCompleteCallback &cb) {  writeCompleteCallback_ = cb; }
 
     void setHighWaterMarkCallback(const HighWaterMarkCallback &cb, size_t highWaterMark)
     {
-        highWaterMark_ = cb;
+        highWaterMarkCallback_ = cb;
         highWaterMark_ = highWaterMark;
     }
     
@@ -58,6 +59,7 @@ public:
     // 连接销毁
     void connectDestroyed();
 
+
 private:
     enum StateE
     {
@@ -66,17 +68,21 @@ private:
         kConnected,
         kDisconnecting
     };
+    void setstate(StateE state) { state_ = state; }
+
     void handleRead(Timestamp receiveTime);
-    void handleWite();
+    void handleWrite();
     void handleClose();
     void handleError();
 
     void sendInLoop(const void *message, size_t len);
     void shutdownInLoop();
 
+
+
     EventLoop *loop_; // 这里绝对不是baseLoop, 因为TcpConnectoin都是在subLoop里面管理的
     const std::string name_;
-    std::atmoic_int state_;
+    std::atomic_int state_;
     bool reading_;
 
     // 这里和Acceptor类似 Accpeor->mainLoop TcpConnection->subLoop
