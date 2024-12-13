@@ -22,7 +22,7 @@ class Socket;
 class TcpConnection : noncopyalbe, std::enable_shared_from_this<TcpConnection>
 {
 public:
-    TcpConnection(EventLoop * loop,
+    TcpConnection(EventLoop *loop,
                   const std::string &name,
                   int sockfd,
                   const InetAddress &localAddr,
@@ -44,21 +44,20 @@ public:
 
     void setConnectionCallback(const ConnectionCallback &cb) { connectionCallback_ = cb; }
     void setMessageCallback(const MessageCallback &cb) { messageCallback_ = cb; }
-    void setWriteCompleteCakkback(const WriteCompleteCallback &cb) {  writeCompleteCallback_ = cb; }
+    void setWriteCompleteCakkback(const WriteCompleteCallback &cb) { writeCompleteCallback_ = cb; }
 
     void setHighWaterMarkCallback(const HighWaterMarkCallback &cb, size_t highWaterMark)
     {
         highWaterMarkCallback_ = cb;
         highWaterMark_ = highWaterMark;
     }
-    
+
     void setCloseCallback(const CloseCallback &cb) { closeCallBack_ = cb; }
 
     // 连接建立
     void connectEstablished();
     // 连接销毁
     void connectDestroyed();
-
 
 private:
     enum StateE
@@ -77,8 +76,6 @@ private:
 
     void sendInLoop(const void *message, size_t len);
     void shutdownInLoop();
-
-
 
     EventLoop *loop_; // 这里绝对不是baseLoop, 因为TcpConnectoin都是在subLoop里面管理的
     const std::string name_;
@@ -99,6 +96,6 @@ private:
     CloseCallback closeCallBack_;
     size_t highWaterMark_;
 
-    Buffer inputBuffer_;
-    Buffer outputBuffer_;
+    Buffer inputBuffer_;  // 接收数据的缓冲区
+    Buffer outputBuffer_; // 发送数据的缓冲区
 };
